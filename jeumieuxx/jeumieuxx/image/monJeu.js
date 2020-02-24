@@ -2,7 +2,6 @@ var config = {
 	type: Phaser.AUTO,
 	width: 800,
 	height: 600,
-	
 physics: {
         default: 'arcade',
         arcade: {
@@ -33,13 +32,6 @@ var sauvegardedureset=1;
 var attaquemonstre=0;
 var timerattaque=1000;
 var timertouch=0;
-var scene=0;
-var sceneb=0;
-var scenec=0;
-var sensprojectile=1;
-var timerattaquejoueur=0;
-var timerresetattaque=0;
-var cdattaque=1000;
 function init(){
 	var sauvesaut;
 	var saut;
@@ -75,13 +67,6 @@ function init(){
 	var attaquemonstre;
 	var timerattaque;
 	var timertouch;
-	var scene;
-	var sceneb;
-	var scenec;
-	var sensprojectile;
-	var timerattaquejoueur;
-	var timerresetattaque;
-	var cdattaque;
 }
 
 function preload(){
@@ -89,7 +74,6 @@ function preload(){
 	this.load.image('fond','imag/fond.png');
 	this.load.image('etoile','imag/star.png');
 	this.load.image('sol','imag/platform.png');
-	this.load.image('attaquenb','imag/projectileenhaut.png');
 	this.load.spritesheet('perso','imag/statique.png',{frameWidth: 21, frameHeight: 30});
 	this.load.spritesheet('run','imag/run.png',{frameWidth: 23, frameHeight: 28});
 	this.load.spritesheet('saut','imag/saut.png',{frameWidth: 21, frameHeight: 28});
@@ -100,9 +84,6 @@ function preload(){
 	this.load.spritesheet('monstres','imag/statiquemonstre.png',{frameWidth: 45, frameHeight: 51});
 	this.load.spritesheet('leftmonstre','imag/monstreleft.png',{frameWidth: 45, frameHeight: 51});
 	this.load.spritesheet('attaquemonstre','imag/attaquemonstre.png',{frameWidth: 80, frameHeight: 57});
-	this.load.spritesheet('attaquejoueur','imag/attaque.png',{frameWidth: 41, frameHeight: 34});
-	this.load.spritesheet('propro','imag/projectile.png',{frameWidth: 44, frameHeight: 33});
-	this.load.spritesheet('takehit','imag/hit.png',{frameWidth: 56, frameHeight: 52});
 }
 
 
@@ -118,12 +99,9 @@ function create(){
 	platforms.create(600,400,'sol');
 	platforms.create(50,250,'sol');
 	
-	barredepv1 = this.add.sprite(430,26,'vie').setScale(2);
-	barredepv2 = this.add.sprite(460,26,'vie').setScale(2);
-	barredepv3 = this.add.sprite(490,26,'vie').setScale(2);
-	
-	barredattaque1 = this.add.sprite(430,570,'attaquenb').setScale(0.5);
-	barredattaque2 = this.add.sprite(460,570,'attaquenb').setScale(0.5);
+	barredepv1 = this.add.sprite(430,16,'vie');
+	barredepv2 = this.add.sprite(460,16,'vie');
+	barredepv3 = this.add.sprite(490,16,'vie');
 	
 	player = this.physics.add.sprite(100,450,'perso');
 	player.setCollideWorldBounds(true);
@@ -135,9 +113,9 @@ function create(){
 	monstre.body.setGravityY(000);
 	this.physics.add.collider(monstre,platforms);
 	
+	
 	cursors = this.input.keyboard.createCursorKeys(); 
 	dasht= this.input.keyboard.addKey('W');
-	atkt= this.input.keyboard.addKey('D');
 	
 	this.anims.create({
 		key:'left',
@@ -202,24 +180,7 @@ function create(){
 		frameRate: 9,
 	});
 	
-		this.anims.create({
-		key:'atkjoueur',
-		frames: this.anims.generateFrameNumbers('attaquejoueur', {start: 0, end: 5}),
-		frameRate: 9,
-	});
 	
-		this.anims.create({
-		key:'projectile',
-		frames: this.anims.generateFrameNumbers('propro', {start: 0, end: 2}),
-		frameRate: 9,
-		repeat: -1,
-	});
-	
-		this.anims.create({
-		key:'prendhit',
-		frames: this.anims.generateFrameNumbers('takehit', {start: 0, end: 3}),
-		frameRate: 9,
-	});
 	
 	stars = this.physics.add.group({
 		key: 'etoile',
@@ -232,22 +193,11 @@ function create(){
 	endurance = this.add.text(400,576,'endurance: ', {fontSize: '32px', fill:'#FFF'});
 	scoreText = this.add.text(16,16, 'score: 0', {fontSize: '32px', fill:'#000'});
 	bombs = this.physics.add.group();
-	textchoix =	this.add.text(0, 0, 'Deplacement : Touches directionnelles/Attaquer : D/Dash : W ',{fontSize: '12px', fill:'#000'});
-	
+	textchoix =	this.add.text(500, 16, 'PV : ',{fontSize: '32px', fill:'#000'});
+	textchoixjoueur =	this.add.text(500, 100, 'PV : ',{fontSize: '32px', fill:'#000'});
 	this.physics.add.collider(bombs,platforms);
 	this.physics.add.collider(player,bombs, hitBomb, null, this);
 	this.physics.add.collider(player,monstre, hitmonstre, null, this);
-	
-	pointderecups = this.physics.add.group();
-	this.physics.add.collider(pointderecups,platforms);
-	this.physics.add.collider(player,pointderecups, collectPV, null, this);
-	
-	projectiles = this.physics.add.group();
-	this.physics.add.collider(projectiles,monstre, hitprojectilebadass, null, this);
-	
-	timerEvent1 = this.time.addEvent({ delay: 4000,callback:animatkmonstre,  timeScale: 1,startAt:0,repeat:-1 });
-    timerEvent2 = this.time.addEvent({ delay: 1400,callback:attenteattaque, timeScale: 1,startAt:0 , repeat:-1 });
-    timerEvent3 = this.time.addEvent({ delay: 500,callback:resetattaquemonstre, timeScale: 1,startAt:0 , repeat:-1 });
 	
 }
 
@@ -261,29 +211,8 @@ function update(){
 		dashreset=dashreset+0.5;	
 		}
 	}
-	if (atkt.isUp) {
-	  timerattaquejoueur=0;
-	  timerresetattaque=100;
-	}
-	if (timerresetattaque==0) {
-	cdattaque=0;	
-	}
-	if (cdattaque<1000) {
-	cdattaque=cdattaque+1;	
-	}
-	if (atkt.isDown && player.body.touching.down && timerresetattaque>0 && cdattaque==1000) {
-		player.anims.play('atkjoueur', true);
-		player.setVelocityX(0);
-		timerattaquejoueur=timerattaquejoueur+1;
-		timerresetattaque=timerresetattaque-1;
-		if (timerattaquejoueur==40) {
-		projectilebadass()
-		timerattaquejoueur=0;
-		}
-	}
-	
-	else if(cursors.left.isDown){
-		sensprojectile=1;
+	if(cursors.left.isDown){
+		
 		if (player.body.touching.down) {
 		 if (dasht.isDown && sauvedash>0 && dashreset>9) {
 		dashreset=dashreset-2;
@@ -305,7 +234,6 @@ function update(){
 		player.setFlipX(true);	
 		}
 	}else if(cursors.right.isDown){
-		sensprojectile=0;
 		if (player.body.touching.down) {
 			 if (dasht.isDown && sauvedash>0 && dashreset>9) {
 		dashreset=dashreset-2;
@@ -371,43 +299,25 @@ function update(){
 	if (invicibilite>90 && pvjoueur!=0) {
 	player.clearTint()
 	}
-	if (pvjoueur==3) {
+	if (pvjoueur==3) {	
 	barredepv1.anims.play('pv', true);
 	barredepv2.anims.play('pv', true);
 	barredepv3.anims.play('pv', true);
-	barredepv3.setVisible(true);
+	
 	}
 	if (pvjoueur==2) {
 
 	barredepv1.anims.play('pv', true);
 	barredepv2.anims.play('pv', true);
-	barredepv2.setVisible(true);
-	barredepv3.setVisible(false)
+	barredepv3.destroy(true);
 	}
 	if (pvjoueur==1) {
 	barredepv1.anims.play('pv', true);
-	barredepv1.setVisible(true);
-	barredepv2.setVisible(false);
+	barredepv2.destroy(true);
 	}
 	if (pvjoueur==0) {
-	barredepv1.setVisible(false);
+	barredepv1.destroy(true);
 	}
-	if (cdattaque<1000) {
-	barredattaque1.setVisible(false);
-	barredattaque2.setVisible(false);
-	}
-	else if (timerresetattaque==100) {
-	barredattaque2.setVisible(true);
-	barredattaque1.setVisible(true);
-	}
-	if (timerresetattaque<50) {
-	barredattaque2.setVisible(false);
-	barredattaque1.setVisible(true);	
-	}
-	if (timerresetattaque<10) {
-	barredattaque1.setVisible(false);		
-	}
-	
 	
 	xmonstre=monstre.x;
 	xjoueur=player.x;
@@ -418,13 +328,6 @@ function update(){
 	if (resetchoix<1000) {
      resetchoix=resetchoix+1;
 	}
-	if (choixmonstre==10) 
-	{
-	resetchoix=850;
-    sauvechoix=10;	
-	choixmonstre=1000;
-	}
-	
 	if (resetchoix==1000) {
 	choixmonstre = Phaser.Math.Between(1,2);
 	if (choixmonstre==0) {
@@ -443,12 +346,6 @@ function update(){
 	if (sauvechoix<2) {
 	monstre.setVelocityX(0);
 	monstre.anims.play('monstrestatique', true);
-	xsauveattaque=0;
-	}
-	if (sauvechoix==10) {
-	monstre.anims.play('prendhit',true);
-	monstre.setVelocityX(0);
-	xsauveattaque=0;
 	}
 	if (sauvechoix==2) { 
 	if (ymonstre+20>=yjoueur && ymonstre-89<=yjoueur && xmonstre+100>=xjoueur && xmonstre-100<=xjoueur){
@@ -477,7 +374,7 @@ function update(){
 	}
 	
 	
-/*	if (timerattaque<1000) {
+	if (timerattaque<1000) {
 	timerattaque=timerattaque+1;
 	if (timerattaque<100) {
 	timerattaque=1000;	
@@ -504,26 +401,10 @@ function update(){
 	if (xsauveattaque==0) {
 	attaquemonstre=0;
 	timertouch=0;	
-	} */
-	
-	if (xsauveattaque==1) {
-	monstre.setVelocityX(0);
-	monstre.anims.play('monstreattaque',true);
-	timerEvent1;
-
-	if (attaquemonstre==0) {
-	timerEvent2;
-}
-	}
-	if (attaquemonstre==3) {
-	timerEvent3;
 	}
 	
-	if (xsauveattaque==0) {
-	 attaquemonstre=0;	
-	}
-	
-	
+	 textchoixjoueur.setText(timertouch +'/4');
+	 textchoix.setText(attaquemonstre +'wow');
 	
 	
 	if (invicibilite==100 && ymonstre+20>=yjoueur && ymonstre-59<=yjoueur && xmonstre+80>=xjoueur && xmonstre-100<=xjoueur && attaquemonstre==3) {
@@ -537,8 +418,6 @@ function update(){
 	player.anims.play('turn');
 	gameOver=true;
 	}
-	
-	
 }
 
 
@@ -589,57 +468,5 @@ function collectStar(player, star){
 		bomb.setCollideWorldBounds(true);
 		bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
 	}
-	if (score==200 || score==500 || score==1000 || score==2000 ||score==3000 || score==4000 || score==10000) {
-	var pointderecup = pointderecups.create(400, 16, 'vie');
-		pointderecup.anims.play('pv', true);
-		pointderecup.setBounce(0);
-		pointderecup.setCollideWorldBounds(true);
-	}
 }
 
-function animatkmonstre () {
-		xsauveattaque=0;
-}
-
-function attenteattaque () {
-		attaquemonstre=3;
-}
-
-function resetattaquemonstre () {
-	attaquemonstre=0;
-}
-
-function collectPV(player,pointderecup) {
-	pointderecup.disableBody(true,true);
-	if (pvjoueur<3) {
-	pvjoueur=pvjoueur+1;
-	}
-	else {
-	score +=100;	
-	}
-}
-
-function projectilebadass () {
-	var projectile = projectiles.create(player.x, player.y, 'propro');
-		projectile.anims.play('projectile', true);
-		projectile.setBounce(0);
-	if (sensprojectile==1) {
-	projectile.setVelocityX(-375);
-	projectile.setFlipX(true);	
-	projectile.body.setGravityY(-500);
-	}
-	if (sensprojectile==0) {
-	projectile.setVelocityX(375);
-projectile.setFlipX(false);	
-projectile.body.setGravityY(-500);
-	}
-}
-
-function hitprojectilebadass(monstre,projectile) {
-	
-
-	projectile.disableBody(true,true);
-	choixmonstre=10;
-	
-
-}
